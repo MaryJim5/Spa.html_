@@ -1,0 +1,151 @@
+html 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro de Citas - SPA</title>
+
+  <style>
+    body {
+      background-color: #ffe6f0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .form-container {
+      background-color: #fff0f5;
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 450px;
+    }
+
+    .form-container h2 {
+      text-align: center;
+      color: #d63384;
+      margin-bottom: 25px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #f5c2e7;
+      border-radius: 8px;
+      background: #ffffff;
+      font-size: 14px;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #ff66b2;
+    }
+
+    button {
+      background-color: #ff66b2;
+      color: white;
+      padding: 14px;
+      border: none;
+      width: 100%;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #e0559d;
+    }
+
+    .success-message {
+      text-align: center;
+      color: green;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h2>Agenda tu Cita</h2>
+    <form id="citaForm">
+      <input type="text" id="nombre" placeholder="Nombre completo" required>
+      <input type="email" id="correo" placeholder="Correo electrónico" required>
+      <input type="tel" id="telefono" placeholder="Teléfono" required>
+      <input type="date" id="fecha" required>
+      <textarea id="motivo" rows="3" placeholder="Motivo de la cita" required></textarea>
+      <button type="submit">Reservar Cita</button>
+    </form>
+    <div id="successMessage" class="success-message"></div>
+  </div>
+
+  <script type="module">
+    // Importar funciones de Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyC1m-Fibksj314sAFizoC55J8apRcw7mHc",
+      authDomain: "e-1459-marycruz.firebaseapp.com",
+      projectId: "e-1459-marycruz",
+      storageBucket: "e-1459-marycruz.firebasestorage.app",
+      messagingSenderId: "682804560282",
+      appId: "1:682804560282:web:a2c6851dc7a12e02013a23"
+    };
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Captura del formulario
+    const citaForm = document.getElementById('citaForm');
+    const successMessage = document.getElementById('successMessage');
+
+    citaForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nombre = document.getElementById('nombre').value.trim();
+      const correo = document.getElementById('correo').value.trim();
+      const telefono = document.getElementById('telefono').value.trim();
+      const fecha = document.getElementById('fecha').value;
+      const motivo = document.getElementById('motivo').value.trim();
+
+      if (nombre && correo && telefono && fecha && motivo) {
+        try {
+          const citasRef = ref(database, 'citas');
+          const nuevaCitaRef = push(citasRef);
+          await set(nuevaCitaRef, {
+            nombre: nombre,
+            correo: correo,
+            telefono: telefono,
+            fecha: fecha,
+            motivo: motivo,
+            fechaRegistro: new Date().toISOString()
+          });
+
+          successMessage.textContent = "¡Tu cita ha sido registrada exitosamente!";
+          citaForm.reset();
+
+          setTimeout(() => {
+            successMessage.textContent = '';
+          }, 4000);
+
+        } catch (error) {
+          console.error("Error al registrar cita:", error);
+          alert('Error al registrar tu cita. Intenta nuevamente.');
+        }
+      } else {
+        alert('Por favor llena todos los campos.');
+      }
+    });
+  </script>
+
+</body>
+</html>
